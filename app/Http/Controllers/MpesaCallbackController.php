@@ -17,9 +17,14 @@ class MpesaCallbackController extends Controller
             abort(404);
         }
 
-        Log::info('M-Pesa callback received', ['payload' => $request->all()]);
+        $payload = $request->all();
+        $payment = $mpesa->handleCallback($payload);
 
-        $mpesa->handleCallback($request->all());
+        Log::info('M-Pesa callback received', [
+            'payment_id' => $payment?->id,
+            'checkout_request_id' => data_get($payload, 'Body.stkCallback.CheckoutRequestID'),
+            'result_code' => data_get($payload, 'Body.stkCallback.ResultCode'),
+        ]);
 
         // Always acknowledge so Safaricom does not retry.
         return response()->json(['ResultCode' => 0, 'ResultDesc' => 'Accepted']);

@@ -50,9 +50,11 @@ Run the tests with `php artisan test`.
    MPESA_CALLBACK_TOKEN=some-long-random-string
    MPESA_CALLBACK_BASE_URL=https://your-public-url   # ngrok locally, your domain when deployed
    ```
+   Use the sandbox shortcode and passkey from Daraja's test credentials. For local testing, run the app with `php artisan serve`, expose port 8000 through an HTTPS tunnel, then set `MPESA_CALLBACK_BASE_URL` to the tunnel's origin (for example, `https://example.ngrok-free.app`, without a path). Generate a private callback token with `openssl rand -hex 32`. After changing `.env`, run `php artisan config:clear`. Safaricom must be able to reach the HTTPS callback URL; `localhost` URLs are rejected before an STK request is sent. Use a test phone number supported by the Daraja sandbox.
 3. **Production** – set `MPESA_ENV=production` and use your own Paybill/Till, passkey and credentials from Safaricom's Go-Live process.
 
 Safaricom posts payment results to `POST /mpesa/callback/{MPESA_CALLBACK_TOKEN}`. The URL must be public **https**; the secret token in the path stops anyone else from faking a payment.
+The checked-in `.env.example` intentionally keeps `MPESA_SIMULATE=true` and leaves credentials blank. Set the sandbox values only in your local `.env`; never commit Daraja keys or passkeys.
 
 ## Deploying
 

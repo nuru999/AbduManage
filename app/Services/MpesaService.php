@@ -49,6 +49,7 @@ class MpesaService
             ]);
         }
 
+        $this->assertConfigured();
         $timestamp = Carbon::now('Africa/Nairobi')->format('YmdHis');
         $shortcode = config('services.mpesa.shortcode');
 
@@ -213,7 +214,10 @@ class MpesaService
 
     private function accessToken(): string
     {
-        return Cache::remember('mpesa_access_token', now()->addMinutes(50), function () {
+        $credentials = config('services.mpesa.consumer_key')."\0".config('services.mpesa.consumer_secret');
+        $cacheKey = 'mpesa_access_token:'.config('services.mpesa.env').':'.hash('sha256', $credentials);
+
+        return Cache::remember($cacheKey, now()->addMinutes(50), function () {
             $response = Http::baseUrl($this->baseUrl())
                 ->withBasicAuth((string) config('services.mpesa.consumer_key'), (string) config('services.mpesa.consumer_secret'))
                 ->timeout(30)
@@ -227,6 +231,42 @@ class MpesaService
 
             return $token;
         });
+    }
+
+    private function assertConfigured(): void
+    {
+        $required = [
+            'MPESA_CONSUMER_KEY' => config('services.mpesa.consumer_key'),
+            'MPESA_CONSUMER_SECRET' => config('services.mpesa.consumer_secret'),
+            'MPESA_SHORTCODE' => config('services.mpesa.shortcode'),
+            'MPESA_PASSKEY' => config('services.mpesa.passkey'),
+            'MPESA_CALLBACK_TOKEN' => config('services.mpesa.callback_token'),
+        ];
+        $missing = array_keys(array_filter($required, fn ($value) => ! is_string($value) || trim($value) === ''));
+
+        if ($missing) {
+            throw new MpesaException('M-Pesa is not configured. Set '.implode(', ', $missing).' in .env.');
+        }
+
+        if (! in_array(config('services.mpesa.env'), ['sandbox', 'production'], true)) {
+            throw new MpesaException('MPESA_ENV must be either sandbox or production.');
+        }
+
+        $callback = parse_url($this->callbackUrl());
+
+        if (! is_array($callback)) {
+            throw new MpesaException('Set MPESA_CALLBACK_BASE_URL to a public HTTPS URL that Safaricom can reach.');
+        }
+
+        $host = strtolower($callback['host'] ?? '');
+
+        if (
+            strtolower($callback['scheme'] ?? '') !== 'https'
+            || $host === ''
+            || in_array($host, ['localhost', '127.0.0.1', '::1'], true)
+        ) {
+            throw new MpesaException('Set MPESA_CALLBACK_BASE_URL to a public HTTPS URL that Safaricom can reach.');
+        }
     }
 
     private function parseTransactionDate(mixed $value): Carbon

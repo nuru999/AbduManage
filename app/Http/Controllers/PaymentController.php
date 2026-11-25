@@ -10,12 +10,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
-    public function __construct(private MpesaService $mpesa)
-    {
-    }
+    public function __construct(private MpesaService $mpesa) {}
 
     public function index(Request $request)
     {
@@ -75,6 +74,11 @@ class PaymentController extends Controller
         try {
             $this->mpesa->stkPush($payment);
         } catch (MpesaException $e) {
+            $payment->update([
+                'status' => Payment::STATUS_FAILED,
+                'result_desc' => Str::limit($e->getMessage(), 250, ''),
+            ]);
+
             return back()->withInput()->with('error', 'M-Pesa error: '.$e->getMessage());
         } catch (\Throwable $e) {
             Log::error('STK push crashed', ['payment' => $payment->id, 'error' => $e->getMessage()]);
