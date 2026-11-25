@@ -29,7 +29,7 @@ Sign in at <http://localhost:8000> with:
 
 | Role    | Email                  | Password   |
 |---------|------------------------|------------|
-| Admin   | `admin@abdumanage.test` | `password` |
+| Admin   | `admin@abdumanage.test` | `change-me-before-deploying` |
 | Teacher | `grace@abdumanage.test` | `password` |
 
 (Set `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env` before seeding to choose your own admin login.)
