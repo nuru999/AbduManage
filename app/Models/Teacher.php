@@ -19,6 +19,18 @@ class Teacher extends Model
         'status',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'employment_date' => 'date',
+        ];
+    }
+
+    public function getFullNameAttribute(): string
+    {
+        return trim($this->first_name.' '.$this->last_name);
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -27,5 +39,5 @@ class Teacher extends Model
     public function schoolClasses(): HasMany
     {
         return $this->hasMany(SchoolClass::class);
-    }   
+    }
 }

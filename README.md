@@ -1,58 +1,64 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# AbduManage
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A school management system built with **Laravel 13**, **Tailwind CSS 4** and **M-Pesa (Daraja) fee collection**.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Role-based access** – admins manage everything, teachers see their classes and take attendance
+- **Students** – enroll, search, filter by class/status, full profile page
+- **Teachers** – create staff with their own login
+- **Classes** – assign a class teacher, see the class list
+- **Attendance** – one-screen daily register (present / late / absent / excused) with remarks
+- **Fees & M-Pesa** – bill fees per student, send an **STK Push** to the parent's phone, live status page, automatic receipt capture, balance tracking
+- **Dashboard** – headcounts, 7-day attendance chart, fees collected / outstanding, recent payments
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Quick start (local)
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate --seed
+npm install
+npm run dev        # in one terminal
+php artisan serve  # in another
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Sign in at <http://localhost:8000> with:
 
-## Contributing
+| Role    | Email                  | Password   |
+|---------|------------------------|------------|
+| Admin   | `admin@abdumanage.test` | `password` |
+| Teacher | `grace@abdumanage.test` | `password` |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+(Set `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env` before seeding to choose your own admin login.)
 
-## Code of Conduct
+Run the tests with `php artisan test`.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## M-Pesa setup
 
-## Security Vulnerabilities
+1. **Demo mode (default)** – `MPESA_SIMULATE=true`. No Safaricom account is needed; a payment auto-completes ~5 seconds after you send it. Perfect for presenting the project.
+2. **Sandbox** – create an app at <https://developer.safaricom.co.ke>, then set in `.env`:
+   ```
+   MPESA_SIMULATE=false
+   MPESA_ENV=sandbox
+   MPESA_CONSUMER_KEY=...
+   MPESA_CONSUMER_SECRET=...
+   MPESA_SHORTCODE=174379
+   MPESA_PASSKEY=...            # from the Daraja "Lipa na M-Pesa" test credentials
+   MPESA_CALLBACK_TOKEN=some-long-random-string
+   MPESA_CALLBACK_BASE_URL=https://your-public-url   # ngrok locally, your domain when deployed
+   ```
+3. **Production** – set `MPESA_ENV=production` and use your own Paybill/Till, passkey and credentials from Safaricom's Go-Live process.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Safaricom posts payment results to `POST /mpesa/callback/{MPESA_CALLBACK_TOKEN}`. The URL must be public **https**; the secret token in the path stops anyone else from faking a payment.
 
-## License
+## Deploying
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- Set `APP_ENV=production`, `APP_DEBUG=false`, a real `APP_URL`, and run `php artisan key:generate --show` to get an `APP_KEY`.
+- Run `php artisan migrate --force` (and `php artisan db:seed --force` once to create the admin).
+- Build assets with `npm ci && npm run build`.
+- Use a database that persists (MySQL/Postgres, or a mounted volume for SQLite).
+- Change the admin password and set `SEED_DEMO=false` for real data.
+- Cache config for speed: `php artisan config:cache route:cache view:cache`.
