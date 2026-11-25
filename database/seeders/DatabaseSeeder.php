@@ -3,23 +3,25 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Admin account (override with ADMIN_EMAIL / ADMIN_PASSWORD in .env)
+        User::updateOrCreate(
+            ['email' => env('ADMIN_EMAIL', 'admin@abdumanage.test')],
+            [
+                'name' => 'System Admin',
+                'password' => env('ADMIN_PASSWORD', 'password'),
+                'role' => User::ROLE_ADMIN,
+            ]
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Demo data is great for a presentation. Set SEED_DEMO=false to skip it.
+        if (filter_var(env('SEED_DEMO', true), FILTER_VALIDATE_BOOL)) {
+            $this->call(DemoDataSeeder::class);
+        }
     }
 }

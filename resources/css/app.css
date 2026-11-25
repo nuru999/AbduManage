@@ -2,8 +2,103 @@
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../views';
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-brand-50: #f1f0ff;
+    --color-brand-100: #e6e4ff;
+    --color-brand-200: #cfcbff;
+    --color-brand-300: #aea6ff;
+    --color-brand-400: #8a7bff;
+    --color-brand-500: #6d54f7;
+    --color-brand-600: #5b3aea;
+    --color-brand-700: #4c2dcf;
+    --color-brand-800: #3f27a8;
+    --color-brand-900: #352585;
+}
+
+@layer base {
+    body {
+        @apply bg-slate-50 text-slate-800 antialiased;
+    }
+}
+
+@layer components {
+    .card {
+        @apply rounded-2xl border border-slate-200/70 bg-white shadow-sm;
+    }
+    .card-pad {
+        @apply p-5 sm:p-6;
+    }
+
+    .btn,
+    .btn-primary,
+    .btn-secondary,
+    .btn-danger,
+    .btn-green {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+    }
+    .btn-primary {
+        @apply bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-md shadow-brand-600/25 hover:from-brand-600 hover:to-brand-800;
+    }
+    .btn-secondary {
+        @apply border border-slate-200 bg-white text-slate-700 hover:bg-slate-50;
+    }
+    .btn-danger {
+        @apply bg-rose-50 text-rose-700 hover:bg-rose-100;
+    }
+    .btn-green {
+        @apply bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-md shadow-emerald-600/25 hover:from-emerald-600 hover:to-emerald-800;
+    }
+    .btn-sm {
+        @apply px-3 py-1.5 text-xs;
+    }
+
+    .label {
+        @apply mb-1.5 block text-sm font-medium text-slate-700;
+    }
+    .input {
+        @apply block w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-brand-400 focus:outline-none focus:ring-4 focus:ring-brand-100;
+    }
+    .input-error {
+        @apply border-rose-300 focus:border-rose-400 focus:ring-rose-100;
+    }
+
+    .th {
+        @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500;
+    }
+    .td {
+        @apply px-4 py-3.5 text-sm text-slate-700;
+    }
+
+    .nav-link {
+        @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 transition hover:bg-white/5 hover:text-white;
+    }
+    .nav-link-active {
+        @apply bg-white/10 text-white shadow-inner shadow-white/5;
+    }
+
+    .page-title {
+        @apply text-2xl font-bold tracking-tight text-slate-900;
+    }
+}
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fade-up .4s ease-out both; }
+
+@keyframes toast-out {
+    0%, 85% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-8px); }
+}
+.toast { animation: fade-up .3s ease-out both, toast-out 5s ease-in forwards; }
+
+.dot-pattern {
+    background-image: radial-gradient(rgba(255, 255, 255, .12) 1px, transparent 1px);
+    background-size: 18px 18px;
 }

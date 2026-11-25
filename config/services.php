@@ -14,6 +14,25 @@ return [
     |
     */
 
+    'mpesa' => [
+        // sandbox | production
+        'env' => env('MPESA_ENV', 'sandbox'),
+        'consumer_key' => env('MPESA_CONSUMER_KEY'),
+        'consumer_secret' => env('MPESA_CONSUMER_SECRET'),
+        'shortcode' => env('MPESA_SHORTCODE', '174379'),
+        'passkey' => env('MPESA_PASSKEY'),
+        // CustomerPayBillOnline (Paybill) or CustomerBuyGoodsOnline (Till)
+        'transaction_type' => env('MPESA_TRANSACTION_TYPE', 'CustomerPayBillOnline'),
+        // Only needed for Till numbers (PartyB). Defaults to the shortcode.
+        'party_b' => env('MPESA_PARTY_B'),
+        // Secret path segment protecting the public callback URL
+        'callback_token' => env('MPESA_CALLBACK_TOKEN'),
+        // Public https base URL Safaricom can reach (e.g. an ngrok URL locally)
+        'callback_base_url' => env('MPESA_CALLBACK_BASE_URL'),
+        // Demo mode: no call to Safaricom, payments auto-complete after a few seconds
+        'simulate' => env('MPESA_SIMULATE', false),
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],
